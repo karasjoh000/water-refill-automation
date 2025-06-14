@@ -3,15 +3,6 @@ import digitalio
 import time
 import requests
 
-# Set up C0 as an output
-# c0 = digitalio.DigitalInOut(board.C0)
-# c0.direction = digitalio.Direction.OUTPUT
-# c0.value = True  # Sending voltage signal
-
-# # Set up C1 as an input
-# c1 = digitalio.DigitalInOut(board.C1)
-# c1.direction = digitalio.Direction.INPUT
-
 relay1_state = False
 sensors = [
     digitalio.DigitalInOut(board.C0), 
@@ -24,8 +15,8 @@ sensors = [
 
 SENSOR_COUNT = len(sensors)
 for i, v in enumerate(sensors):
-    sensors[i].direction = digitalio.Direction.OUTPUT
-    sensors[i].value = True
+    sensors[i].direction = digitalio.Direction.INPUT
+    #sensors[i].value = True
 relay_states = [False for i in range(0, SENSOR_COUNT)]
 sensor_states = [0 for i in range(0,SENSOR_COUNT)]
 queue = []
@@ -34,9 +25,6 @@ prev_sensor_state_id = ""
 def print_relays():
     global prev_sensor_state_id
     sensor_state_id = "s" + "".join(list(map(lambda x: str(int(sensors[x[0]].value)), enumerate(sensors))))
-    print("--" + sensor_state_id)
-    for i in sensors: 
-        print(int(i.value))
     if sensor_state_id == prev_sensor_state_id:
         return
     prev_sensor_state_id = sensor_state_id
