@@ -94,14 +94,3 @@ while True:
     update_empty_bucket_queue()
     check_open_next_valve()
     print_relays()
-
-
-
-
-    # if sensors[0].value and relay_states[0]:
-    #     #requests.get("http://192.168.1.4/30000/00")  # Turn relay 1 off
-    #     relay_states[0] = False
-    # elif not relay_states[0]:
-    #     #requests.get("http://192.168.1.4/30000/01")  # Turn relay 1 on
-    #     relay_states[0] = True
-    # time.sleep(0.5)  # Sleep for 1/10th of a second
