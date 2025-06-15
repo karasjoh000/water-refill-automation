@@ -90,7 +90,7 @@ def check_open_next_valve():
 
 # Infinite loop
 while True:
-    time.sleep(1)  # Sleep for 1/10th of a second
+    time.sleep(0.1)  # Sleep for 1/10th of a second
     update_empty_bucket_queue()
     check_open_next_valve()
     print_relays()
