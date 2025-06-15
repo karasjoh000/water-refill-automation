@@ -2,11 +2,15 @@ import board
 import digitalio
 import time
 import requests
+from sensor_queue import SensorQueue
+
+# TODO: clear all relay states on toggle off
 
 relay1_state = False
 sensors = [
     digitalio.DigitalInOut(board.C0), 
     digitalio.DigitalInOut(board.C1),
+    # bad solder, C2 does not work.
     #digitalio.DigitalInOut(board.C2),
     digitalio.DigitalInOut(board.C3),
     digitalio.DigitalInOut(board.C4),
@@ -16,11 +20,12 @@ sensors = [
 SENSOR_COUNT = len(sensors)
 for i, v in enumerate(sensors):
     sensors[i].direction = digitalio.Direction.INPUT
-    #sensors[i].value = True
 relay_states = [False for i in range(0, SENSOR_COUNT)]
 sensor_states = [0 for i in range(0,SENSOR_COUNT)]
-queue = []
+queue = SensorQueue()
 
+# print sensor id and relay id only on sensor state change.
+# if sensor changes quickly within interval this will not detect the change
 prev_sensor_state_id = ""
 def print_relays():
     global prev_sensor_state_id
@@ -28,19 +33,65 @@ def print_relays():
     if sensor_state_id == prev_sensor_state_id:
         return
     prev_sensor_state_id = sensor_state_id
+    relay_state_id = "r" + "".join(list(map(lambda x: str(int(x)), relay_states)))
+    queue_state_id = "q" + "".join(list(map(lambda x: str(x), queue.items)))
     print("-------")
     print(sensor_state_id)
-    
+    print(relay_state_id)
+    print(queue_state_id)
     print("-------")
-    print("r", end="")
-    for v in relay_states:
-        print(int(v), end="")
-    print("")
+
+# utility func that negates the value. When false its actually at low state
+def low(sensor):
+    return not sensor.value
+
+# updates queue for empty buckets and removes
+# already full buckets.
+def update_empty_bucket_queue():
+    global queue
+    for stall, bucket in enumerate(sensors):
+        if low(bucket) and not queue.has(stall):
+            print("pushing stall " + str(stall))
+            queue.push(stall)
+        elif not low(bucket) and queue.has(stall):
+            queue.remove(stall)
+
+def turnoff_valve(stall):
+    relay_states[stall] = False
+    # TODO: requests call to turn off relay
+
+def turnon_valve(stall):
+    relay_states[stall] = True
+    # TODO: requests call to turn on relay
+
+def turnoff_all_other_valves():
+    for stall, valve_is_on in enumerate(relay_states):
+        if valve_is_on:
+            turnoff_valve(stall)
+
+def valve_is_on(stall):
+    return relay_states[stall]
+
+
+# checks to open next valve. If all buckets full, then do nothing
+def check_open_next_valve():
+    stall = queue.peek()
+    if stall is None:
+        turnoff_all_other_valves()
+        return
+    if not valve_is_on(stall):
+        turnoff_all_other_valves()
+        turnon_valve(stall)
+
+
 
 # Infinite loop
 while True:
     time.sleep(1)  # Sleep for 1/10th of a second
+    update_empty_bucket_queue()
+    check_open_next_valve()
     print_relays()
+
 
 
 
