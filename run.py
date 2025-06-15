@@ -54,7 +54,6 @@ def update_empty_bucket_queue():
     global queue
     for stall, bucket in enumerate(sensors):
         if low(bucket) and not queue.has(stall):
-            print("pushing stall " + str(stall))
             queue.push(stall)
         elif not low(bucket) and queue.has(stall):
             queue.remove(stall)
