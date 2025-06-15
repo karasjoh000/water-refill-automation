@@ -3,10 +3,13 @@ import digitalio
 import time
 import requests
 from sensor_queue import SensorQueue
+from relay_controller import RelayController
 
-# TODO: clear all relay states on toggle off
+# TODO: clear all relay states on toggle off switch on box
 
-relay1_state = False
+
+relay_controller = RelayController()
+
 sensors = [
     digitalio.DigitalInOut(board.C0), 
     digitalio.DigitalInOut(board.C1),
@@ -58,11 +61,11 @@ def update_empty_bucket_queue():
 
 def turnoff_valve(stall):
     relay_states[stall] = False
-    # TODO: requests call to turn off relay
+    relay_controller.turn_off_relay(stall)
 
 def turnon_valve(stall):
     relay_states[stall] = True
-    # TODO: requests call to turn on relay
+    relay_controller.turn_on_relay(stall)
 
 def turnoff_all_other_valves():
     for stall, valve_is_on in enumerate(relay_states):
