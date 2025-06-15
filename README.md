@@ -6,6 +6,7 @@ web relay: https://a.co/d/bx4NGC7
 
 ```bash
 # to run 
+export BLINKA_FT232H=1
 python run.py
 ```  
 
