@@ -32,17 +32,22 @@ class RelayController():
             "off": "10"
         }
     }
+    # common kwargs
+    kwargs = {
+        "timeout": 10,
+        "verify": False  # Disable SSL verification if needed
+    }
     def turn_on_relay(self, relay):
         url = self.BASE_URL + self.RELAY_CONTROLS[relay]["on"]
         try:
-            requests.get(url)
+            requests.get(url, **self.kwargs)
         except Exception as e:
             print(f"Error turning on relay {relay}: {e}")
     
     def turn_off_relay(self, relay):
         url = self.BASE_URL + self.RELAY_CONTROLS[relay]["off"]
         try:
-            requests.get(url)
+            requests.get(url, **self.kwargs)
         except Exception as e:
             print(f"Error turning off relay {relay}: {e}")
 
