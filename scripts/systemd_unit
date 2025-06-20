@@ -1,0 +1,13 @@
+[Unit]
+Description=Run start.sh script for Adafruit project
+After=network.target
+
+[Service]
+ExecStart=/home/goat/projects/adafruit/scripts/start.sh
+WorkingDirectory=/home/goat/projects/adafruit
+Restart=always
+RestartSec=10
+StartLimitIntervalSec=0
+
+[Install]
+WantedBy=multi-user.target
