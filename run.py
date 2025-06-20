@@ -17,7 +17,8 @@ sensors = [
     #digitalio.DigitalInOut(board.C2),
     digitalio.DigitalInOut(board.C3),
     digitalio.DigitalInOut(board.C4),
-    #digitalio.DigitalInOut(board.C5)
+    digitalio.DigitalInOut(board.C5), 
+    digitalio.DigitalInOut(board.C6)
 ]
 print(dir(board))
 toggle_switch = digitalio.DigitalInOut(board.D6)
