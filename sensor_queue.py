@@ -25,3 +25,6 @@ class SensorQueue():
     def remove(self, item):
         if item in self.items: 
             self.items.remove(item)
+    
+    def remove_all(self):
+        self.items.clear()

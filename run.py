@@ -19,6 +19,10 @@ sensors = [
     digitalio.DigitalInOut(board.C4),
     #digitalio.DigitalInOut(board.C5)
 ]
+print(dir(board))
+toggle_switch = digitalio.DigitalInOut(board.D6)
+toggle_switch.direction = digitalio.Direction.INPUT
+
 
 SENSOR_COUNT = len(sensors)
 for i, v in enumerate(sensors):
@@ -30,18 +34,37 @@ queue = SensorQueue()
 # print sensor id and relay id only on sensor state change.
 # if sensor changes quickly within interval this will not detect the change
 prev_sensor_state_id = ""
+prev_relay_state_id = ""
+prev_queue_state_id = ""
+prev_toggle_switch_state_id = ""
 def print_relays():
     global prev_sensor_state_id
+    global prev_relay_state_id
+    global prev_queue_state_id
+    global sensors
+    global relay_states
+    global toggle_switch
+    global prev_toggle_switch_state_id
+
+    global queue
     sensor_state_id = "s" + "".join(list(map(lambda x: str(int(sensors[x[0]].value)), enumerate(sensors))))
-    if sensor_state_id == prev_sensor_state_id:
-        return
-    prev_sensor_state_id = sensor_state_id
     relay_state_id = "r" + "".join(list(map(lambda x: str(int(x)), relay_states)))
     queue_state_id = "q" + "".join(list(map(lambda x: str(x), queue.items)))
+    toggle_switch_state_id = "t" + str(int(toggle_switch.value))
+    if sensor_state_id == prev_sensor_state_id \
+        and relay_state_id == prev_relay_state_id \
+        and queue_state_id == prev_queue_state_id \
+        and toggle_switch_state_id == prev_toggle_switch_state_id:
+        return
+    prev_sensor_state_id = sensor_state_id
+    prev_relay_state_id = relay_state_id
+    prev_queue_state_id = queue_state_id
+    prev_toggle_switch_state_id = toggle_switch_state_id
     print("-------")
     print(sensor_state_id)
     print(relay_state_id)
     print(queue_state_id)
+    print(toggle_switch_state_id)
     print("-------")
 
 # utility func that negates the value. When false its actually at low state
@@ -74,9 +97,17 @@ def turnoff_all_other_valves():
 def valve_is_on(stall):
     return relay_states[stall]
 
+def toggle_is_off():
+    global toggle_switch
+    return toggle_switch.value
+
 
 # checks to open next valve. If all buckets full, then do nothing
 def check_open_next_valve():
+    if toggle_is_off():
+        queue.remove_all()
+        turnoff_all_other_valves()
+        return
     stall = queue.peek()
     if stall is None:
         turnoff_all_other_valves()
